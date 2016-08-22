@@ -6,7 +6,7 @@ import random as r
 
 # My Scripts
 from player import Player
-from rotate import Rotation
+from rotate import Landmark, Prefab
 
 #create a window for spiral landscape
 window = Tk()
@@ -34,9 +34,8 @@ seed = int(r.random()*1000)
 seedCounter = 0
 print ("world seed:",seed)
 
-testPoints = [(-15,0),(-15,-25),(15,-25),(15,0),(-15,-25),(0,-40),(15,-25)]
 landmarks = []
-landmarks.append( Rotation(testPoints) )
+landmarks.append( Landmark(*Prefab.barn) )
 
 
 def draw_player():
@@ -52,9 +51,17 @@ def draw_objects():
 	for obj in landmarks:
 		spiral.create_line(obj.get_points(),fill=obj.color,width=2,capstyle=ROUND,tags="clear")
 		obj.set_next_position();
+		if (obj.connectedObject != None):
+			landmarks.append(obj.connectedObject)
+			obj.connectedObject = None
+		#Player has reached Object
 		if (obj.origin[0] < 130 and obj.origin[1] > 200 and obj.triggered == False):
 			obj.triggered = True
 			put_text(obj.string)
+			if (obj.stopMovement):
+				global sMove
+				sMove = False
+		#Object has left screen
 		if (obj.origin[0] >= 285 or obj.origin[1] >= 285):
 			landmarks.remove(obj)
 
@@ -63,19 +70,20 @@ def put_text(string):
 	text.insert("1.0", string+"\n")
 	text.config(state=DISABLED)
 
-def spawn_object():
+def spawn_object(obj = Prefab.fencePost):
 	alpha = 'abcdefghijklmnopqrstuvwxyz'
-	newObj = Rotation(testPoints)
-	newObj.string = r.choice(alpha)
-	landmarks.append( newObj )
+	landmarks.append( Landmark(*obj) )
+	landmarks[len(landmarks)-1].string = r.choice(alpha)
 
 def random_generate():
 	global seed
 	global seedCounter
 	r.seed(seed + seedCounter)
 	seedCounter += 1
-	if (r.random() < 0.05):
-		spawn_object()
+	if (r.random() < 0.02):
+		spawn_object(Prefab.fencePost)
+	elif (r.random() < 0.02):
+		spawn_object(Prefab.barn)
 
 i = 0
 def draw_next_line(stepTime = 0.025):
@@ -92,7 +100,6 @@ def draw_next_line(stepTime = 0.025):
 	sPoints2.append(var2[1]+center[1])
 	spiral.create_line(sPoints2[i-2],sPoints2[i-1],sPoints2[i],sPoints2[i+1],fill="#800000",width=12,capstyle=ROUND,smooth=True)
 	spiral.create_line(sPoints[i-2],sPoints[i-1],sPoints[i],sPoints[i+1],fill="#ffffff",width=6,capstyle=ROUND,smooth=True)
-#	spiral.create_line(sPoints[i-2],sPoints[i-1],sPoints[i],sPoints[i+1],fill="#ffffff",width=8,dash=(1,10),capstyle=ROUND,smooth=True,tags="grass")
 	i+=2
 	if(sPoints[i] > 300 or sPoints[i] < -50):
 		t.cancel()
