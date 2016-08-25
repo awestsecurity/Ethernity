@@ -51,13 +51,14 @@ def draw_objects():
 	for obj in landmarks:
 		spiral.create_line(obj.get_points(),fill=obj.color,width=2,capstyle=ROUND,tags="clear")
 		obj.set_next_position();
-		if (obj.connectedObject != None):
+		if (obj.connectedObject != None and obj.connect):
+			obj.connect = False
 			landmarks.append(obj.connectedObject)
-			obj.connectedObject = None
 		#Player has reached Object
 		if (obj.origin[0] < 130 and obj.origin[1] > 200 and obj.triggered == False):
 			obj.triggered = True
-			put_text(obj.string)
+			if obj.prompt:
+				put_text(obj.string)
 			if (obj.stopMovement):
 				global sMove
 				sMove = False
