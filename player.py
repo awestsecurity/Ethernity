@@ -7,6 +7,7 @@ class Player():
 		self.y = 30
 		
 		self.assign_frame = self.__assign_frame();
+		self.advance = True #player animates every other frame
 
 		#player sprites
 		self.frameStates.append([(4,0),(5,0),(3,1),(4,1),(5,1),(6,1),(2,2),(3,2),(4,2),(5,2),(6,2),(3,3),(4,3),(5,3),(6,3),(4,4),(5,4),(2,5),(3,5),(2,6),(3,6),(4,6),(1,7),(2,7),(3,7),(4,7),(1,8),(2,8),(3,8),(5,8),(1,9),(2,9),(3,9),(5,9),(1,10),(2,10),(3,10),(5,10),(1,11),(2,11),(3,11),(5,11),(1,12),(2,12),(3,12),(5,12),(1,13),(2,13),(3,13),(6,13),(1,14),(2,14),(3,14),(6,14),(1,15),(2,15),(3,15),(4,15),(7,15),(2,16),(4,16),(2,17),(5,17),(3,18),(5,18),(3,19),(6,19),(3,20),(6,20),(3,21),(6,21),(2,22),(7,22),(2,23),(7,23),(2,24),(7,24),(1,25),(7,25),(1,26),(7,26),(1,27),(8,27),(0,28),(8,28),(0,29),(1,29),(8,29),(9,29)])
@@ -20,4 +21,8 @@ class Player():
 	def __assign_frame(self):
 		while True:
 			yield self.frameStates[self.currentframe]
-			self.currentframe = (self.currentframe+1)%len(self.frameStates)
+			if self.advance:
+				self.currentframe = (self.currentframe+1)%len(self.frameStates)
+				self.advance = not self.advance
+			else :
+				self.advance = not self.advance

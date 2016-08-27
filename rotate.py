@@ -71,10 +71,10 @@ class Landmark():
 			y = center[1] + (a*t*math.sin(t))
 			yield [x,y,x,y]
 			t = math.sqrt(t+j)
-			self.__rotate_points(.77/t) #0.768
-			j += 1.5
+			self.__rotate_points(.4/t) #0.77
+			j += 0.75 #1.5
 			if self.scale < 1 :
-				self.scale += 0.05
+				self.scale += 0.02
 			#print(t)
 
 	def __rotate_points(self,degrees):
@@ -157,7 +157,7 @@ class Landmark():
 		if ( not self._connected and self.counter > self.distance ):
 			points = []
 			points.append( (0,0) )
-			points.append( (random.random()*-5+2.5,random.random()*-3-9 ) )
+			points.append( (random.random()*-5+2.5,random.random()*-2-10 ) )
 			points.append( points[-1]+(-2,0) )
 			points.append( (-2,0) )
 			type(self)._likeliness -= 0.1

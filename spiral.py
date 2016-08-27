@@ -28,6 +28,7 @@ sMove = False
 gameReady = False
 direction = 0
 playerGraphic = None
+drawplayer = None
 player = Player()
 
 seed = int(r.random()*1000)
@@ -36,6 +37,7 @@ print ("world seed:",seed)
 
 landmarks = []
 canvaselements = []
+connectinglines = []
 
 def draw_player():
 	playerImage = PhotoImage(master=spiral, width=player.x,height=player.y)
@@ -50,17 +52,22 @@ def draw_objects():
 	for obj in landmarks:
 		obj.set_next_position();
 	i = 0
+	j = 0
 	for obj in landmarks:
 		coordslist = obj.get_coords()
 		spiral.coords(canvaselements[i], coordslist)
 		if obj.connectedObject != None:
-			line = generate_connection(obj)
-			spiral.create_line(line,fill=obj.color,width=1,capstyle=ROUND,tags="clear")
 			if  obj.connect:
+				line = generate_connection(obj)
 				obj.connect = False
 				landmarks.append(obj.connectedObject)
-				o = spiral.create_polygon(obj.connectedObject.get_points(),fill=obj.connectedObject.color,width=2,tags="landmark")
+				o = spiral.create_polygon(obj.connectedObject.get_points(),fill=obj.connectedObject.color,width=2)
 				canvaselements.append( o )
+				connectinglines.append( spiral.create_line(line,fill=obj.connectedObject.color,width=1) )
+			else:
+				line = generate_connection(obj, False)
+				spiral.coords(connectinglines[j], line)
+				j += 1
 		#Player has reached Object
 		if (obj.origin[0] < 130 and obj.origin[1] > 200 and obj.triggered == False):
 			obj.triggered = True
@@ -69,14 +76,16 @@ def draw_objects():
 			if (obj.stopMovement):
 				global sMove
 				sMove = False
-		#Object has left screen
-		if (obj.origin[0] >= 285 or obj.origin[1] >= 285):
+		#Object has left screen space
+		if (obj.origin[0] >= 290 or obj.origin[1] >= 290):
+			if obj.connectedObject != None:
+				del connectinglines[0]
+				j -= 1
 			del canvaselements[0]
-			spiral.delete(landmarks[0])
+			spiral.delete(canvaselements[0])
 			del landmarks[0]
+			i -= 1
 		i += 1
-		#spiral.update_idletasks()
-		
 
 def put_text(string):
 	text.config(state=NORMAL)
@@ -101,7 +110,7 @@ def random_generate():
 		spawn_object(Prefab.barn)
 
 i = 0
-def draw_next_line(stepTime = 0.025):
+def draw_next_line(stepTime = 0.01):
 	t = Timer(stepTime, draw_next_line)
 	t.start()
 	global sPoints
@@ -116,9 +125,12 @@ def draw_next_line(stepTime = 0.025):
 		t.cancel()
 		print ("spiral drawn")
 		global gameReady
+		global drawplayer
+		global playerGraphic
 		gameReady = True
 		draw_objects()
-		playerGraphic = spiral.create_image(123,236, image=draw_player())
+		drawplayer = draw_player()
+		playerGraphic = spiral.create_image(123,236, image = drawplayer)
 		print ("player drawn")
 
 def zoom_spiral(): #canvas.scale? resize window or crop?
@@ -126,24 +138,27 @@ def zoom_spiral(): #canvas.scale? resize window or crop?
 	yOrigin = 256
 	xZoom = 512
 	yZoom = 512
-	
+
 def Update():
 	global sMove
 	global playerGraphic
+	global drawplayer
 	if sMove:
-		t = Timer(0.33, Update)
+		t = Timer(0.1, Update)
 		t.start()
 		clear_canvas("clear")
 		draw_objects()
-		spiral.itemconfig(playerGraphic, image = draw_player())
+		drawplayer = draw_player()
+		spiral.itemconfig(playerGraphic, image = drawplayer)
+		spiral.tag_raise(playerGraphic)
 		random_generate()
 		if sMove == False:
 			t.cancel()
-	
+
 def stop_spiral(event):
 	global sMove
 	sMove = False
-	
+
 def move_spiral_forward(event):
 	global sMove
 	global direction
@@ -159,18 +174,15 @@ def move_spiral_backward(event):
 		direction = -1
 		sMove = True
 		Update()
-		
+
 def clear_canvas(s = "all"):
 	global spiral
 	spiral.delete(s)
 
 def get_spiral_points(arc=25.0, separation=60):
-	
 	global center
-	
 	def p2c(r, phi): #polar to cartesian
 		return (r * math.cos(phi), r * math.sin(phi))
-
 	yield (center[0], center[1])			   # yield a point at origin
 	print("origin logged")
 	r = arc				   # initialize the next point in the required distance
@@ -183,13 +195,23 @@ def get_spiral_points(arc=25.0, separation=60):
 		# (approximating with circle)
 		phi += float(arc) / r
 		r = b * phi
-		
-def generate_connection(landmark):
+
+def generate_connection(landmark, tuple = True):
 	line = []
-	line.append(landmark.get_subpoint(0))
-	line.append(landmark.connectedObject.get_subpoint(0))
-	line.append(landmark.connectedObject.get_subpoint(1))
-	line.append(landmark.get_subpoint(1))
+	if tuple:
+		line.append(landmark.get_subpoint(0))
+		line.append(landmark.connectedObject.get_subpoint(0))
+		line.append(landmark.connectedObject.get_subpoint(1))
+		line.append(landmark.get_subpoint(1))
+	else :
+		line.append(landmark.get_subpoint(0)[0])
+		line.append(landmark.get_subpoint(0)[1])
+		line.append(landmark.connectedObject.get_subpoint(0)[0])
+		line.append(landmark.connectedObject.get_subpoint(0)[1])
+		line.append(landmark.connectedObject.get_subpoint(1)[0])
+		line.append(landmark.connectedObject.get_subpoint(1)[1])
+		line.append(landmark.get_subpoint(1)[0])
+		line.append(landmark.get_subpoint(1)[1])
 	return line
 
 #Setup Text Window
@@ -205,8 +227,8 @@ sPoints.append(var[0]) # Store origin point
 sPoints.append(var[1]) # Store origin point
 draw_next_line()
 
-landmarks.append( Landmark(*Prefab.barn) )
-canvaselements.append ( spiral.create_polygon(landmarks[0].get_points(),fill=landmarks[0].color,width=2,tags="landmark") )
+#landmarks.append( Landmark(*Prefab.barn) )
+#canvaselements.append ( spiral.create_polygon(landmarks[0].get_points(),fill=landmarks[0].color,width=2,tags="landmark") )
 
 #Setup Bindings
 spiral.bind("<Right>", move_spiral_forward)
