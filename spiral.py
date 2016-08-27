@@ -35,8 +35,7 @@ seedCounter = 0
 print ("world seed:",seed)
 
 landmarks = []
-landmarks.append( Landmark(*Prefab.barn) )
-
+canvaselements = []
 
 def draw_player():
 	playerImage = PhotoImage(master=spiral, width=player.x,height=player.y)
@@ -44,16 +43,24 @@ def draw_player():
 	while True:
 		for t in player.get_frame():
 			playerImage.put(player.color,t)
-#		player = PhotoImage(width=10,height=30,file='player.gif')
+#		playerImage = PhotoImage(width=10,height=30,file='player.gif')
 		return playerImage
 		
 def draw_objects():
 	for obj in landmarks:
-		spiral.create_line(obj.get_points(),fill=obj.color,width=2,capstyle=ROUND,tags="clear")
 		obj.set_next_position();
-		if (obj.connectedObject != None and obj.connect):
-			obj.connect = False
-			landmarks.append(obj.connectedObject)
+	i = 0
+	for obj in landmarks:
+		coordslist = obj.get_coords()
+		spiral.coords(canvaselements[i], coordslist)
+		if obj.connectedObject != None:
+			line = generate_connection(obj)
+			spiral.create_line(line,fill=obj.color,width=1,capstyle=ROUND,tags="clear")
+			if  obj.connect:
+				obj.connect = False
+				landmarks.append(obj.connectedObject)
+				o = spiral.create_polygon(obj.connectedObject.get_points(),fill=obj.connectedObject.color,width=2,tags="landmark")
+				canvaselements.append( o )
 		#Player has reached Object
 		if (obj.origin[0] < 130 and obj.origin[1] > 200 and obj.triggered == False):
 			obj.triggered = True
@@ -64,7 +71,12 @@ def draw_objects():
 				sMove = False
 		#Object has left screen
 		if (obj.origin[0] >= 285 or obj.origin[1] >= 285):
-			landmarks.remove(obj)
+			del canvaselements[0]
+			spiral.delete(landmarks[0])
+			del landmarks[0]
+		i += 1
+		#spiral.update_idletasks()
+		
 
 def put_text(string):
 	text.config(state=NORMAL)
@@ -74,6 +86,8 @@ def put_text(string):
 def spawn_object(obj = Prefab.fencePost):
 	alpha = 'abcdefghijklmnopqrstuvwxyz'
 	landmarks.append( Landmark(*obj) )
+	o = spiral.create_polygon(landmarks[-1].get_points(),fill=landmarks[-1].color,width=2,tags="landmark")
+	canvaselements.append( o )
 	landmarks[len(landmarks)-1].string = r.choice(alpha)
 
 def random_generate():
@@ -94,36 +108,19 @@ def draw_next_line(stepTime = 0.025):
 	global center
 	global i
 	var = next(pointsGenerator)
-	var2 = next(pointsGenerator2)
 	sPoints.append(var[0]+center[0])
 	sPoints.append(var[1]+center[1])
-	sPoints2.append(var2[0]+center[0])
-	sPoints2.append(var2[1]+center[1])
-	spiral.create_line(sPoints2[i-2],sPoints2[i-1],sPoints2[i],sPoints2[i+1],fill="#800000",width=12,capstyle=ROUND,smooth=True)
 	spiral.create_line(sPoints[i-2],sPoints[i-1],sPoints[i],sPoints[i+1],fill="#ffffff",width=6,capstyle=ROUND,smooth=True)
 	i+=2
 	if(sPoints[i] > 300 or sPoints[i] < -50):
 		t.cancel()
 		print ("spiral drawn")
 		global gameReady
-		global playerGraphic
 		gameReady = True
 		draw_objects()
-		playerGraphic = draw_player()
-		spiral.create_image(123,236, image=playerGraphic, state="normal", tags="clear")
+		playerGraphic = spiral.create_image(123,236, image=draw_player())
 		print ("player drawn")
 
-def rotate_spiral():
-	t = Timer(0.4, rotate_spiral)
-	t.start()
-	clear_canvas("object")
-	global sMove
-	newPoints = rotate_points(sPoints)
-	spiral.create_line(newPoints,fill="#ffffff",width=7,capstyle=ROUND)
-	sPoints = newPoints
-	if sMove == False:
-		t.cancel()
-		
 def zoom_spiral(): #canvas.scale? resize window or crop?
 	xOrigin = 256
 	yOrigin = 256
@@ -134,12 +131,11 @@ def Update():
 	global sMove
 	global playerGraphic
 	if sMove:
-		t = Timer(0.4, Update)
+		t = Timer(0.33, Update)
 		t.start()
 		clear_canvas("clear")
 		draw_objects()
-		playerGraphic = draw_player()
-		spiral.create_image(123,236, image=playerGraphic, state="normal", tags="clear")
+		spiral.itemconfig(playerGraphic, image = draw_player())
 		random_generate()
 		if sMove == False:
 			t.cancel()
@@ -188,21 +184,29 @@ def get_spiral_points(arc=25.0, separation=60):
 		phi += float(arc) / r
 		r = b * phi
 		
+def generate_connection(landmark):
+	line = []
+	line.append(landmark.get_subpoint(0))
+	line.append(landmark.connectedObject.get_subpoint(0))
+	line.append(landmark.connectedObject.get_subpoint(1))
+	line.append(landmark.get_subpoint(1))
+	return line
+
 #Setup Text Window
 text = Text(window2,background="#000000",foreground="#ffffff",state=DISABLED,width="64",wrap="word")
 text.pack()
+
 #Setup Spiral Landscape
 spiral = Canvas(window,width=(256),height=(256),background="#000000")
-spiral.pack()
+spiral.pack()	
 pointsGenerator = get_spiral_points()
-pointsGenerator2 = get_spiral_points(30,60)
 var = next(pointsGenerator)
-var2 = next(pointsGenerator2)
 sPoints.append(var[0]) # Store origin point
 sPoints.append(var[1]) # Store origin point
-sPoints2.append(var2[0])
-sPoints2.append(var2[1])
 draw_next_line()
+
+landmarks.append( Landmark(*Prefab.barn) )
+canvaselements.append ( spiral.create_polygon(landmarks[0].get_points(),fill=landmarks[0].color,width=2,tags="landmark") )
 
 #Setup Bindings
 spiral.bind("<Right>", move_spiral_forward)
