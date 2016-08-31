@@ -51,6 +51,9 @@ class Landmark():
 		
 		self.scatter_points(0.1)
 		
+		if prompt:
+			self.generate_satin_poem()
+		
 		if connect:
 			self.set_connections()
 			more = True if random.random() < type(self)._likeliness else False
@@ -145,7 +148,7 @@ class Landmark():
 		max = min
 		self.numConnections = numConnections
 		while (i < numConnections):
-			max += 1/numConnections - 0.1/numConnections
+			max += 1 / numConnections - 0.1 / numConnections
 			rand = random.uniform(min,max)
 			min = max
 			x = self.get_lerped(self.points[0][0],self.points[1][0],rand)
@@ -164,14 +167,41 @@ class Landmark():
 			self.connectedObject = Landmark(points,False,True)
 			self._connected = True
 
+	def generate_satin_poem(self,endcount = 8):
+		s = ""
+		endcount = random.randint(4,21)
+		endposition = 3 if endcount < 11 else 5
+		endposition += 0 if endcount % endposition > 0 else 2
+		max = math.floor (60 / endcount)
+		width = random.randint(2,max)
+		alpha = 'abcdefghijklmnopqrstuvwxyz!'
+		character = 0
+		i = endcount - 1
+		step = endcount - 1
+		j = endcount * width
+		row = 1
+		while row <= endcount:
+			if character%endcount == i:
+				s += " "
+				character += 1
+			else :
+				s += random.choice(alpha)
+				character += 1
+			if character >= j:
+				s += "\n"
+				character = 0
+				row += 1
+				i = (i+endposition) % endcount
+		self.string = s
+
 	def get_lerped (self, outMin, outMax, input ):
 		return outMin + (outMax - outMin) * input
 
 	def scatter_points(self, amount):
 		i = len(self.points)-1
 		while i >= 0:
-			randx = random.uniform (1-amount,1+amount)
-			randy = random.uniform (1-amount,1+amount)
+			randx = random.uniform (1 - amount,1 + amount)
+			randy = random.uniform (1 - amount,1 + amount)
 			self.points[i] = (self.points[i][0]*randx,self.points[i][1]*randy)
 			i -= 1
 

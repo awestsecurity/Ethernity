@@ -18,7 +18,7 @@ window.configure(background="#000000")
 #create a window for text
 window2 = Toplevel(window, width="512",height="256",bg="#000000")
 window2.title("Hello World")
-window2.geometry("512x256+310+310")
+window2.geometry("512x380+310+210")
 
 
 center = (128,118)
@@ -93,11 +93,9 @@ def put_text(string):
 	text.config(state=DISABLED)
 
 def spawn_object(obj = Prefab.fencePost):
-	alpha = 'abcdefghijklmnopqrstuvwxyz'
 	landmarks.append( Landmark(*obj) )
 	o = spiral.create_polygon(landmarks[-1].get_points(),fill=landmarks[-1].color,width=2,tags="landmark")
 	canvaselements.append( o )
-	landmarks[len(landmarks)-1].string = r.choice(alpha)
 
 def random_generate():
 	global seed
@@ -132,6 +130,7 @@ def draw_next_line(stepTime = 0.01):
 		drawplayer = draw_player()
 		playerGraphic = spiral.create_image(123,236, image = drawplayer)
 		print ("player drawn")
+		put_text("You are h e r e .")
 
 def zoom_spiral(): #canvas.scale? resize window or crop?
 	xOrigin = 256
@@ -227,8 +226,6 @@ sPoints.append(var[0]) # Store origin point
 sPoints.append(var[1]) # Store origin point
 draw_next_line()
 
-#landmarks.append( Landmark(*Prefab.barn) )
-#canvaselements.append ( spiral.create_polygon(landmarks[0].get_points(),fill=landmarks[0].color,width=2,tags="landmark") )
 
 #Setup Bindings
 spiral.bind("<Right>", move_spiral_forward)
