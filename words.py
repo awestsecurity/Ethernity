@@ -3,26 +3,39 @@ import sys
 
 class WordList():
 
-	file = "words.txt"
+	#file = "words.txt"
 	openFile = None
 	maxSize = 0
-	largestwords = []
 	wordList = []
+	listlength = 0
 	
-	def __init__(self):
-		self.__open_file()
+	def __init__(self,length=""):
+		filename = "words"+str(length)+".txt"
+		self.__open_file(filename)
 		self.load_list()
 	
-	def __del__(self):
-		self.__open_file()
+	#def __del__(self):
+	#	self.openFile.close()
 	
-	def __open_file(self):
+	def __open_file(self, filename = ""):
+		os.chdir(os.path.dirname(sys.argv[0])) #change directory to local folder.
+		#if self.file == "" : self.file = type(self).file
 		if self.openFile == None:
-			self.openFile = open(self.file,"r")
+			try:
+				self.openFile = open(filename,"r")
+			except:
+				print("Cannot open file: "+filename+". Check name.")
+			
 		
 	def __close_file(self):
 		if not self.openFile.closed:
 			self.openFile.close()
+	
+	def load_list(self):
+		self.wordList = []
+		for word in self.openFile: self.wordList.append(word.strip())
+		self.listlength = len(self.wordList)-1
+		#print("list loaded.")
 	
 	def count_words_by_length(self, length):
 		number = 0
@@ -47,50 +60,15 @@ class WordList():
 		words = []
 		for word in self.wordList:
 			length = len(word)
-			if length == wordlength:
-				words.append(word)
-		print(words)
+			if length == wordlength: words.append(word)
+		return words
 
-	def load_list(self):
-		self.wordList = []
-		for word in self.openFile:
-			self.wordList.append(word.strip())
-		print("list loaded.")
-	
-	def quicksort(self, args = None, left = 0, right = 0):
-		if args == None:
-			args = self.wordList
-		if right == 0 :
-			right = len(args)-1
-		i = left
-		j = right
-		pivot = len(args[int((left+right) / 2)])
-		print ("commencing sort", pivot)
-		while ( i <= j ) :
-			while (len(args[i]) < pivot) :
-				i += 1
-			while (len(args[j]) > pivot) :
-				j -= 1
-			if i <= j :
-				#print("switching",args[i],args[j])
-				tempword = args[i]
-				args[i] = args[j]
-				args[j] = tempword	
-				i += 1
-				j -= 1
-		if i < right :
-			print("prev")
-			return self.quicksort(args, i, right)
-		if left < j :
-			print("next")
-			return self.quicksort(args, left, j)
-		print (i," is less than ",right)
-		print ("shortest word: ",args[0])
-		print ("longest word: ",args[-1])
-		return args
-
-os.chdir(os.path.dirname(sys.argv[0])) #change directory to local folder.
-LIST = WordList()
-LIST.find_words_by_length(16)
-LIST.quicksort()
-#LIST.find_longest_words()
+	def write_wordlist(self, list, filename = "untitled.txt", lowfilter = 0, highfilter = 9999):
+		file = open(filename, 'w')
+		for line in list:
+			if len(line) >= lowfilter and len(line) <= highfilter : file.write(line + "\n")
+		file.close()
+		print("list written with low filter: %r and upperlimit: %r" % (lowfilter, highfilter) )
+		
+#l = WordList()
+#l.write_wordlist(l.wordList,"words16.txt",16,16)

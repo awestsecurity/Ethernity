@@ -1,5 +1,6 @@
 import math						# spiral calculations
 import random					# local connections
+from words import WordList
 
 class Landmark():
 
@@ -7,6 +8,8 @@ class Landmark():
 	_spiralwidth = 9.3
 	_id = 0
 	
+	#_wordlist = WordList()
+	#_wordlistlength = len(_wordlist.wordList)
 	_likeliness = 0.9
 	
 	def __str__(self):
@@ -51,14 +54,12 @@ class Landmark():
 		
 		self.scatter_points(0.1)
 		
-		if prompt:
-			self.generate_satin_poem()
+		if prompt: self.generate_satin_poem()
 		
 		if connect:
 			self.set_connections()
 			more = True if random.random() < type(self)._likeliness else False
-			if more:
-				self.generate_next_post()
+			if more: self.generate_next_post()
 			else:
 				self.connect = False
 				type(self)._likeliness = 0.9
@@ -131,16 +132,14 @@ class Landmark():
 			x = p[0]-self.origin[0]
 			y = p[1]-self.origin[1]
 			self.points.append((x,y))
-		else:
-			self.points.append(p)
+		else: self.points.append(p)
 
 	def add_subpoint(self, p, local=True):
 		if not local:
 			x = p[0]-self.origin[0]
 			y = p[1]-self.origin[1]
 			self.subpoints.append((x,y))
-		else:
-			self.subpoints.append(p)
+		else: self.subpoints.append(p)
 
 	def set_connections(self,numConnections = 2):
 		i = 0
@@ -167,7 +166,7 @@ class Landmark():
 			self.connectedObject = Landmark(points,False,True)
 			self._connected = True
 
-	def generate_satin_poem(self,endcount = 8):
+	def generate_satin_structure(self,endcount = 8):
 		s = ""
 		endcount = random.randint(4,21)
 		endposition = 3 if endcount < 11 else 5
@@ -193,6 +192,47 @@ class Landmark():
 				row += 1
 				i = (i+endposition) % endcount
 		self.string = s
+		
+	def generate_satin_poem(self,endcount = 8):
+		s = ""
+		endcount = random.randint(4,16)
+		endposition = 3 if endcount < 11 else 5
+		endposition += 0 if endcount % endposition > 0 else 2
+		max = math.floor (60 / endcount)
+		width = random.randint(2,max)
+		characterwidth = endcount*width
+		word = ""
+		row = 1
+		i = endcount-1
+		while row <= endcount:
+			s += self.write_line(i,endcount-1,characterwidth)
+			s += "\n"
+			row += 1
+			i = (i + endposition) % endcount
+		self.string = s
+	
+	def write_line(self,startlength,mainlength,linewidth):
+		line = ""
+		character = 0
+		if startlength > 0:
+			tlist = WordList(startlength)
+			word = tlist.wordList[random.randint(0,tlist.listlength)]
+			line += word+" "
+			character += startlength+1
+		else : 
+			line += " "
+			character += 1
+		tlist = WordList(mainlength)
+		while character < linewidth-mainlength:
+			word = tlist.wordList[random.randint(0,tlist.listlength)]
+			line += word + " "
+			character += mainlength+1
+		i = mainlength - startlength
+		if i > 0:
+			tlist = WordList(i)
+			word = tlist.wordList[random.randint(0,tlist.listlength)]
+			line += word+" "
+		return line
 
 	def get_lerped (self, outMin, outMax, input ):
 		return outMin + (outMax - outMin) * input
@@ -210,3 +250,4 @@ class Prefab():
 	#barn = ([(-15,0),(-15,-25),(15,-25),(15,0),(-15,-25),(0,-40),(15,-25)],True,False,"Barn")
 	barn = ([(-15,0),(0,1),(15,0),(15,-25),(0,-40),(-15,-25),(-15,0)],True,False,"Barn")
 	fencePost = ([(-2,0),(-2,-12),(-0,-12),(0,0)],False,True,"Fence Post")
+	tree = ([(-2,0),(0,0),(0,-42),(8,-32),(-8,-32),(0,-42),(8,-20),(-8,-20),(0,-42)],False,False,"Tree")

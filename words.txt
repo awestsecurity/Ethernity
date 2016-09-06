@@ -13556,7 +13556,6 @@ Leroy
 Lesbian
 lesion
 Leslie
-Lesotho
 less
 lessee
 lessen
@@ -13573,7 +13572,6 @@ letterhead
 letterman
 lettermen
 lettuce
-leucine
 Lev
 levee
 level
@@ -25447,8 +25445,8 @@ zoo
 zoology
 zoom
 zooplankton
+zygote
 zounds
 zucchini
 Zulu
 Zurich
-zygote

@@ -97,15 +97,16 @@ def spawn_object(obj = Prefab.fencePost):
 	o = spiral.create_polygon(landmarks[-1].get_points(),fill=landmarks[-1].color,width=2,tags="landmark")
 	canvaselements.append( o )
 
+#  #  #  #  #  #  #  #  #  #  #  #  #  #  #  ##
+# # # # SET PROBABILITY OF OBJECTS HERE # # # #
 def random_generate():
 	global seed
 	global seedCounter
 	r.seed(seed + seedCounter)
 	seedCounter += 1
-	if (r.random() < 0.02):
-		spawn_object(Prefab.fencePost)
-	elif (r.random() < 0.02):
-		spawn_object(Prefab.barn)
+	if r.random() < 0.04 : spawn_object(Prefab.tree)
+	elif r.random() < 0.02 : spawn_object(Prefab.fencePost)
+	elif r.random() < 0.01 : spawn_object(Prefab.barn)
 
 i = 0
 def draw_next_line(stepTime = 0.01):
@@ -117,7 +118,7 @@ def draw_next_line(stepTime = 0.01):
 	var = next(pointsGenerator)
 	sPoints.append(var[0]+center[0])
 	sPoints.append(var[1]+center[1])
-	spiral.create_line(sPoints[i-2],sPoints[i-1],sPoints[i],sPoints[i+1],fill="#ffffff",width=6,capstyle=ROUND,smooth=True)
+	#spiral.create_line(sPoints[i-2],sPoints[i-1],sPoints[i],sPoints[i+1],fill="#ffffff",width=6,capstyle=ROUND,smooth=True)
 	i+=2
 	if(sPoints[i] > 300 or sPoints[i] < -50):
 		t.cancel()
