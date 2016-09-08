@@ -8,6 +8,8 @@ class Landmark():
 	_spiralwidth = 9.3
 	_id = 0
 	
+	tlist = WordList()
+	
 	#_wordlist = WordList()
 	#_wordlistlength = len(_wordlist.wordList)
 	_likeliness = 0.9
@@ -199,7 +201,7 @@ class Landmark():
 		endposition = 3 if endcount < 11 else 5
 		endposition += 0 if endcount % endposition > 0 else 2
 		max = math.floor (60 / endcount)
-		width = random.randint(2,max)
+		width = random.randint(3,max)
 		characterwidth = endcount*width
 		word = ""
 		row = 1
@@ -214,23 +216,21 @@ class Landmark():
 	def write_line(self,startlength,mainlength,linewidth):
 		line = ""
 		character = 0
+		l = type(self).tlist
 		if startlength > 0:
-			tlist = WordList(startlength)
-			word = tlist.wordList[random.randint(0,tlist.listlength)]
+			word = l.wordList[random.randint(l.wordkeys[startlength-1],l.wordkeys[startlength]-1)]
 			line += word+" "
 			character += startlength+1
 		else : 
 			line += " "
 			character += 1
-		tlist = WordList(mainlength)
 		while character < linewidth-mainlength:
-			word = tlist.wordList[random.randint(0,tlist.listlength)]
+			word = l.wordList[random.randint(l.wordkeys[mainlength-1],l.wordkeys[mainlength]-1)]
 			line += word + " "
 			character += mainlength+1
 		i = mainlength - startlength
 		if i > 0:
-			tlist = WordList(i)
-			word = tlist.wordList[random.randint(0,tlist.listlength)]
+			word = l.wordList[random.randint(l.wordkeys[i-1],l.wordkeys[i]-1)]
 			line += word+" "
 		return line
 
