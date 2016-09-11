@@ -70,15 +70,15 @@ class Landmark():
 	def __rotate_origin(self): #assumes even number of points
 		center = self.origin
 		a = type(self)._spiralwidth
-		t = 0.0
-		j = 1.0
+		t = 0.0 #distance from original point
+		j = 1.0 #start step from center
 		while True:
 			x = center[0] + (a*t*math.cos(t))
 			y = center[1] + (a*t*math.sin(t))
 			yield [x,y,x,y]
 			t = math.sqrt(t+j)
-			self.__rotate_points(.4/t) #0.77
-			j += 0.75 #1.5
+			self.__rotate_points(.3/t) #0.77
+			j += 0.5625 #1.5
 			if self.scale < 1 :
 				self.scale += 0.02
 			#print(t)
