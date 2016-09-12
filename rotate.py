@@ -7,6 +7,7 @@ class Landmark():
 	_center = (128,118)
 	_spiralwidth = 9.3
 	_id = 0
+	_firsthouse = False
 	
 	tlist = WordList()
 	
@@ -43,7 +44,16 @@ class Landmark():
 		self.prompt = prompt
 		self.triggered = False
 		self.stopMovement = False
-		self.string = "!"
+		self.string = ""
+		
+		if not type(self)._firsthouse and self.name == "Barn" :
+			self.string = "You have encountered a small Barn.\n"
+			self.string += "There doesn't seem to be any-one around.\n"
+			self.string += "A sign on the door reads as follows.\n\n"
+			self.generate_satin_poem()
+			self.string += "\nKeep walking? Y \ N \n"
+			type(self)._firsthouse = True
+			self.stopMovement = True
 
 		#Stuff for fences and other connecting landmarks
 		self._connected = False
@@ -56,7 +66,7 @@ class Landmark():
 		
 		self.scatter_points(0.1)
 		
-		if prompt: self.generate_satin_poem()
+		if prompt and self.string == "": self.generate_satin_poem()
 		
 		if connect:
 			self.set_connections()
@@ -193,7 +203,7 @@ class Landmark():
 				character = 0
 				row += 1
 				i = (i+endposition) % endcount
-		self.string = s
+		self.string += s
 		
 	def generate_satin_poem(self,endcount = 8):
 		s = ""
@@ -211,7 +221,7 @@ class Landmark():
 			s += "\n"
 			row += 1
 			i = (i + endposition) % endcount
-		self.string = s
+		self.string += s
 	
 	def write_line(self,startlength,mainlength,linewidth):
 		line = ""

@@ -39,6 +39,7 @@ canvaselements = []
 connectinglines = []
 
 dialogue = []
+response = False
 
 def draw_player():
 	playerImage = PhotoImage(master=spiral, width=player.x,height=player.y)
@@ -76,7 +77,11 @@ def draw_objects():
 				put_text(obj.string)
 			if (obj.stopMovement):
 				global sMove
+				global gameReady
+				global response
 				sMove = False
+				gameReady = False
+				response = True
 		#Object has left screen space
 		if (obj.origin[0] >= 290 or obj.origin[1] >= 290):
 			if obj.connectedObject != None:
@@ -137,7 +142,6 @@ def draw_next_line(stepTime = 0.01):
 		global gameReady
 		global drawplayer
 		global playerGraphic
-		gameReady = True
 		draw_objects()
 		drawplayer = draw_player()
 		playerGraphic = spiral.create_image(123,236, image = drawplayer)
@@ -146,6 +150,7 @@ def draw_next_line(stepTime = 0.01):
 		put_text("You can't see any-thing.")
 		put_text("\n")
 		put_text("It seems you can w a l k .\n")
+		gameReady = True
 
 def zoom_spiral(): #canvas.scale? resize window or crop?
 	xOrigin = 256
@@ -166,26 +171,20 @@ def Update():
 		spiral.itemconfig(playerGraphic, image = drawplayer)
 		spiral.tag_raise(playerGraphic)
 		random_generate()
-		if sMove == False:
+		if sMove == False or gameReady == False:
 			t.cancel()
 
 def stop_spiral(event):
 	global sMove
 	sMove = False
 
-def move_spiral_forward(event):
+def move_spiral(event):
+	global gameReady
+	if gameReady == False : return None
 	global sMove
 	global direction
-	if sMove == False:
+	if sMove == False and gameReady:
 		direction = 1
-		sMove = True
-		Update()
-
-def move_spiral_backward(event):
-	global sMove
-	global direction
-	if sMove == False:
-		direction = -1
 		sMove = True
 		Update()
 
@@ -228,6 +227,16 @@ def generate_connection(landmark, tuple = True):
 		line.append(landmark.get_subpoint(1)[1])
 	return line
 
+def resume(event, bool):
+	global response
+	if response:
+		global gameReady
+		gameReady = bool
+		s = "That m a k e s sense." if bool else "Let's not just sit here. This place is interesting. Y \ N"
+		s += "\n"
+		put_text(s)
+		response = not bool
+	
 #Setup Text Window
 text = Text(window2,background="#000000",foreground="#ffffff",state=DISABLED,width="64",wrap="word")
 text.pack()
@@ -242,12 +251,13 @@ sPoints.append(var[0]) # Store origin point
 sPoints.append(var[1]) # Store origin point
 draw_next_line()
 
-
 #Setup Bindings
-spiral.bind("<Right>", move_spiral_forward)
+spiral.bind("<Right>", move_spiral)
 spiral.bind("<KeyRelease-Right>", stop_spiral)
-spiral.bind("<Left>", move_spiral_backward)
+spiral.bind("<Left>", move_spiral)
 spiral.bind("<KeyRelease-Left>", stop_spiral)
+spiral.bind("<y>", lambda event, arg=True:resume(event, arg))
+spiral.bind("<n>", lambda event, arg=False:resume(event, arg))
 spiral.focus_set()
 
 #draw the window, and start the 'application'
