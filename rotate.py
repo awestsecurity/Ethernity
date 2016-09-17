@@ -217,7 +217,8 @@ class Landmark():
 		row = 1
 		i = endcount-1
 		while row <= endcount:
-			s += self.write_line(i,endcount-1,characterwidth)
+			#s += self.write_line(i,endcount-1,characterwidth)
+			s += self.write_line(i,endcount-1,64)
 			s += "\n"
 			row += 1
 			i = (i + endposition) % endcount
@@ -238,7 +239,8 @@ class Landmark():
 			word = l.wordList[random.randint(l.wordkeys[mainlength-1],l.wordkeys[mainlength]-1)]
 			line += word + " "
 			character += mainlength+1
-		i = mainlength - startlength
+		#i = mainlength - startlength
+		i = linewidth-character-1
 		if i > 0:
 			word = l.wordList[random.randint(l.wordkeys[i-1],l.wordkeys[i]-1)]
 			line += word+" "
