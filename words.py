@@ -60,10 +60,10 @@ class WordList():
 	def write_wordlist(self, list, filename = "untitled.txt", lowfilter = 0, highfilter = 9999):
 		file = open(filename, 'w')
 		for line in list:
-			if len(line) >= lowfilter and len(line) <= highfilter : file.write(line + "\n")
+			if len(line) >= lowfilter and len(line) <= highfilter : file.write(line + ",")
 		file.close()
 		print("list written with low filter: %r and upperlimit: %r" % (lowfilter, highfilter) )
 		
 #l = WordList()
 #print(l.find_words_by_length(14))
-#l.write_wordlist(l.wordList,"words16.txt",16,16)
+#l.write_wordlist(l.wordList,"words16.txt",1,14)
