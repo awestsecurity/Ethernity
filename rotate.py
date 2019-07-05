@@ -7,6 +7,9 @@ class Landmark():
 	_center = (128,118)
 	_spiralwidth = 9.3
 	_id = 0
+	_firsthouse = False
+	
+	tlist = WordList()
 	
 	#_wordlist = WordList()
 	#_wordlistlength = len(_wordlist.wordList)
@@ -41,7 +44,16 @@ class Landmark():
 		self.prompt = prompt
 		self.triggered = False
 		self.stopMovement = False
-		self.string = "!"
+		self.string = ""
+		
+		if not type(self)._firsthouse and self.name == "Barn" :
+			self.string = "You have encountered a small Barn.\n"
+			self.string += "There doesn't seem to be any-one around.\n"
+			self.string += "A sign on the door reads as follows.\n\n"
+			self.generate_satin_poem()
+			self.string += "\nKeep walking? Y \ N \n"
+			type(self)._firsthouse = True
+			self.stopMovement = True
 
 		#Stuff for fences and other connecting landmarks
 		self._connected = False
@@ -54,7 +66,7 @@ class Landmark():
 		
 		self.scatter_points(0.1)
 		
-		if prompt: self.generate_satin_poem()
+		if prompt and self.string == "": self.generate_satin_poem()
 		
 		if connect:
 			self.set_connections()
@@ -68,15 +80,15 @@ class Landmark():
 	def __rotate_origin(self): #assumes even number of points
 		center = self.origin
 		a = type(self)._spiralwidth
-		t = 0.0
-		j = 1.0
+		t = 0.0 #distance from original point
+		j = 1.0 #start step from center
 		while True:
 			x = center[0] + (a*t*math.cos(t))
 			y = center[1] + (a*t*math.sin(t))
 			yield [x,y,x,y]
 			t = math.sqrt(t+j)
-			self.__rotate_points(.4/t) #0.77
-			j += 0.75 #1.5
+			self.__rotate_points(.3/t) #0.77
+			j += 0.5625 #1.5
 			if self.scale < 1 :
 				self.scale += 0.02
 			#print(t)
@@ -191,7 +203,7 @@ class Landmark():
 				character = 0
 				row += 1
 				i = (i+endposition) % endcount
-		self.string = s
+		self.string += s
 		
 	def generate_satin_poem(self,endcount = 8):
 		s = ""
@@ -199,7 +211,7 @@ class Landmark():
 		endposition = 3 if endcount < 11 else 5
 		endposition += 0 if endcount % endposition > 0 else 2
 		max = math.floor (60 / endcount)
-		width = random.randint(2,max)
+		width = random.randint(3,max)
 		characterwidth = endcount*width
 		word = ""
 		row = 1
@@ -209,28 +221,26 @@ class Landmark():
 			s += "\n"
 			row += 1
 			i = (i + endposition) % endcount
-		self.string = s
+		self.string += s
 	
 	def write_line(self,startlength,mainlength,linewidth):
 		line = ""
 		character = 0
+		l = type(self).tlist
 		if startlength > 0:
-			tlist = WordList(startlength)
-			word = tlist.wordList[random.randint(0,tlist.listlength)]
+			word = l.wordList[random.randint(l.wordkeys[startlength-1],l.wordkeys[startlength]-1)]
 			line += word+" "
 			character += startlength+1
 		else : 
 			line += " "
 			character += 1
-		tlist = WordList(mainlength)
 		while character < linewidth-mainlength:
-			word = tlist.wordList[random.randint(0,tlist.listlength)]
+			word = l.wordList[random.randint(l.wordkeys[mainlength-1],l.wordkeys[mainlength]-1)]
 			line += word + " "
 			character += mainlength+1
 		i = mainlength - startlength
 		if i > 0:
-			tlist = WordList(i)
-			word = tlist.wordList[random.randint(0,tlist.listlength)]
+			word = l.wordList[random.randint(l.wordkeys[i-1],l.wordkeys[i]-1)]
 			line += word+" "
 		return line
 

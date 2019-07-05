@@ -20,7 +20,6 @@ window2 = Toplevel(window, width="512",height="256",bg="#000000")
 window2.title("Hello World")
 window2.geometry("512x380+310+210")
 
-
 center = (128,118)
 sPoints = list()
 sPoints2 = list()
@@ -38,6 +37,9 @@ print ("world seed:",seed)
 landmarks = []
 canvaselements = []
 connectinglines = []
+
+dialogue = []
+response = False
 
 def draw_player():
 	playerImage = PhotoImage(master=spiral, width=player.x,height=player.y)
@@ -75,7 +77,11 @@ def draw_objects():
 				put_text(obj.string)
 			if (obj.stopMovement):
 				global sMove
+				global gameReady
+				global response
 				sMove = False
+				gameReady = False
+				response = True
 		#Object has left screen space
 		if (obj.origin[0] >= 290 or obj.origin[1] >= 290):
 			if obj.connectedObject != None:
@@ -88,9 +94,19 @@ def draw_objects():
 		i += 1
 
 def put_text(string):
-	text.config(state=NORMAL)
-	text.insert("1.0", string+"\n")
-	text.config(state=DISABLED)
+	lines = string.split("\n")
+	for line in lines:
+		dialogue.append(line)
+
+
+def print_text(delay = 0.9):
+	t = Timer(delay, print_text)
+	t.start()
+	if len(dialogue) > 0:
+		text.config(state=NORMAL)
+		text.insert("1.0", dialogue.pop(0)+"\n")
+		text.config(state=DISABLED)
+
 
 def spawn_object(obj = Prefab.fencePost):
 	landmarks.append( Landmark(*obj) )
@@ -126,12 +142,15 @@ def draw_next_line(stepTime = 0.01):
 		global gameReady
 		global drawplayer
 		global playerGraphic
-		gameReady = True
 		draw_objects()
 		drawplayer = draw_player()
 		playerGraphic = spiral.create_image(123,236, image = drawplayer)
 		print ("player drawn")
 		put_text("You are h e r e .")
+		put_text("You can't see any-thing.")
+		put_text("\n")
+		put_text("It seems you can w a l k .\n")
+		gameReady = True
 
 def zoom_spiral(): #canvas.scale? resize window or crop?
 	xOrigin = 256
@@ -144,7 +163,7 @@ def Update():
 	global playerGraphic
 	global drawplayer
 	if sMove:
-		t = Timer(0.1, Update)
+		t = Timer(0.12, Update)
 		t.start()
 		clear_canvas("clear")
 		draw_objects()
@@ -152,26 +171,20 @@ def Update():
 		spiral.itemconfig(playerGraphic, image = drawplayer)
 		spiral.tag_raise(playerGraphic)
 		random_generate()
-		if sMove == False:
+		if sMove == False or gameReady == False:
 			t.cancel()
 
 def stop_spiral(event):
 	global sMove
 	sMove = False
 
-def move_spiral_forward(event):
+def move_spiral(event):
+	global gameReady
+	if gameReady == False : return None
 	global sMove
 	global direction
-	if sMove == False:
+	if sMove == False and gameReady:
 		direction = 1
-		sMove = True
-		Update()
-
-def move_spiral_backward(event):
-	global sMove
-	global direction
-	if sMove == False:
-		direction = -1
 		sMove = True
 		Update()
 
@@ -214,9 +227,20 @@ def generate_connection(landmark, tuple = True):
 		line.append(landmark.get_subpoint(1)[1])
 	return line
 
+def resume(event, bool):
+	global response
+	if response:
+		global gameReady
+		gameReady = bool
+		s = "That m a k e s sense." if bool else "Let's not just sit here. This place is interesting. Y \ N"
+		s += "\n"
+		put_text(s)
+		response = not bool
+	
 #Setup Text Window
 text = Text(window2,background="#000000",foreground="#ffffff",state=DISABLED,width="64",wrap="word")
 text.pack()
+print_text() # text delay per line
 
 #Setup Spiral Landscape
 spiral = Canvas(window,width=(256),height=(256),background="#000000")
@@ -227,12 +251,13 @@ sPoints.append(var[0]) # Store origin point
 sPoints.append(var[1]) # Store origin point
 draw_next_line()
 
-
 #Setup Bindings
-spiral.bind("<Right>", move_spiral_forward)
+spiral.bind("<Right>", move_spiral)
 spiral.bind("<KeyRelease-Right>", stop_spiral)
-spiral.bind("<Left>", move_spiral_backward)
+spiral.bind("<Left>", move_spiral)
 spiral.bind("<KeyRelease-Left>", stop_spiral)
+spiral.bind("<y>", lambda event, arg=True:resume(event, arg))
+spiral.bind("<n>", lambda event, arg=False:resume(event, arg))
 spiral.focus_set()
 
 #draw the window, and start the 'application'

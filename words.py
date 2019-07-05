@@ -3,16 +3,22 @@ import sys
 
 class WordList():
 
-	#file = "words.txt"
+	file = "sortedwords.txt"
 	openFile = None
 	maxSize = 0
 	wordList = []
+	wordkeys = []
 	listlength = 0
 	
-	def __init__(self,length=""):
-		filename = "words"+str(length)+".txt"
-		self.__open_file(filename)
-		self.load_list()
+	instance = None
+	
+	def __init__(self):
+		if type(self).instance == None:
+			filename = type(self).file
+			self.__open_file(filename)
+			self.load_list()
+			type(self).instance = self
+			print("Word List Loaded")
 	
 	#def __del__(self):
 	#	self.openFile.close()
@@ -35,32 +41,20 @@ class WordList():
 		self.wordList = []
 		for word in self.openFile: self.wordList.append(word.strip())
 		self.listlength = len(self.wordList)-1
+		i = 0
+		j = 1
+		self.wordkeys.append(0)
+		while i < self.listlength:
+			if len(self.wordList[i]) > j:
+				self.wordkeys.append(i)
+				j += 1
+			i += 1
 		#print("list loaded.")
 	
-	def count_words_by_length(self, length):
-		number = 0
-		for word in self.openFile:
-			word = word.strip()
-			
-	def find_longest_words(self):
-		largest = 0
-		i = 0
-		for word in self.openFile:
-			length = len(word.strip())
-			if length > self.maxSize:
-				self.maxSize = length
-				self.largestwords = []
-				self.largestwords.append( word )
-			elif length == self.maxSize:
-				self.largestwords.append( word )
-			i += 1
-		print("Longest words: ",self.maxSize,self.largestwords)
-		
 	def find_words_by_length(self, wordlength):
 		words = []
-		for word in self.wordList:
-			length = len(word)
-			if length == wordlength: words.append(word)
+		for n in range(self.wordkeys[wordlength-1],self.wordkeys[wordlength]):
+			words.append(self.wordList[n])
 		return words
 
 	def write_wordlist(self, list, filename = "untitled.txt", lowfilter = 0, highfilter = 9999):
@@ -71,4 +65,5 @@ class WordList():
 		print("list written with low filter: %r and upperlimit: %r" % (lowfilter, highfilter) )
 		
 #l = WordList()
+#print(l.find_words_by_length(14))
 #l.write_wordlist(l.wordList,"words16.txt",16,16)
