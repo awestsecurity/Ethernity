@@ -15,6 +15,11 @@ window.geometry("256x256+30+340")
 window.configure(background="#000000")
 #window.wm_iconbitmap('alien.ico')
 
+#create window for portrait
+windowFace = Toplevel(window, width="96",height="96",bg="#000000")
+windowFace.title("Portait")
+windowFace.geometry("128x128+10+20")
+
 #create a window for text
 window2 = Toplevel(window, width="512",height="256",bg="#000000")
 window2.title("Hello World")
@@ -124,6 +129,8 @@ def random_generate():
 	elif r.random() < 0.02 : spawn_object(Prefab.fencePost)
 	elif r.random() < 0.01 : spawn_object(Prefab.barn)
 
+#  #  #  #  #  #  #  #  #  #  #  #  #  #  #  ##
+# # # #    SET OPENING SCENE HERE       # # # #
 i = 0
 def draw_next_line(stepTime = 0.01):
 	t = Timer(stepTime, draw_next_line)
@@ -146,18 +153,19 @@ def draw_next_line(stepTime = 0.01):
 		drawplayer = draw_player()
 		playerGraphic = spiral.create_image(123,236, image = drawplayer)
 		print ("player drawn")
-		put_text("You are h e r e .")
-		put_text("You can't see any-thing.")
-		put_text("\n")
+		put_text("You are here .")
+		put_text("You can't see any-thing.\n")
 		put_text("It seems you can w a l k .\n")
 		gameReady = True
 
+# 
 def zoom_spiral(): #canvas.scale? resize window or crop?
 	xOrigin = 256
 	yOrigin = 256
 	xZoom = 512
 	yZoom = 512
 
+# # # Run Every Frame
 def Update():
 	global sMove
 	global playerGraphic
@@ -259,6 +267,12 @@ spiral.bind("<KeyRelease-Left>", stop_spiral)
 spiral.bind("<y>", lambda event, arg=True:resume(event, arg))
 spiral.bind("<n>", lambda event, arg=False:resume(event, arg))
 spiral.focus_set()
+
+# # #Testing portrait window - make dynamic system and delete this. # # #
+tmpphoto = PhotoImage(file = "P-skull.png")
+wf = Label(windowFace, image=tmpphoto)
+wf.pack()
+#end test
 
 #draw the window, and start the 'application'
 window.mainloop()
