@@ -16,9 +16,9 @@ window.configure(background="#000000")
 #window.wm_iconbitmap('alien.ico')
 
 #create window for portrait
-windowFace = Toplevel(window, width="96",height="96",bg="#000000")
+windowFace = Toplevel(window, width="170",height="170",bg="#FFFFFF")
 windowFace.title("Portait")
-windowFace.geometry("128x128+10+20")
+windowFace.geometry("170x170+10+20")
 
 #create a window for text
 window2 = Toplevel(window, width="512",height="256",bg="#000000")
@@ -202,7 +202,7 @@ def clear_canvas(s = "all"):
 
 def get_spiral_points(arc=25.0, separation=60):
 	global center
-	def p2c(r, phi): #polar to cartesian
+	def p2c(r, phi):    #polar to cartesian
 		return (r * math.cos(phi), r * math.sin(phi))
 	yield (center[0], center[1])			   # yield a point at origin
 	print("origin logged")

@@ -78,14 +78,14 @@ class Landmark():
 
 	# parametric equation of spiral:  x(t) = at cos(t), y(t) = at sin(t)
 	def __rotate_origin(self): #assumes even number of points
-		center = self.origin
 		a = type(self)._spiralwidth
 		t = 0.0 #distance from original point
 		j = 1.0 #start step from center
 		while True:
-			x = center[0] + (a*t*math.cos(t))
-			y = center[1] + (a*t*math.sin(t))
-			yield [x,y,x,y]
+            #print(center[0].str())
+			x = type(self)._center[0] + (a*t*math.cos(t))
+			y = type(self)._center[1] + (a*t*math.sin(t))
+			yield [x,y]
 			t = math.sqrt(t+j)
 			self.__rotate_points(.3/t) #0.77
 			j += 0.5625 #1.5
